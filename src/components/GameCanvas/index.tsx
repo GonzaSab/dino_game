@@ -51,13 +51,13 @@ export const GameCanvas: React.FC = () => {
 
   useGameLoop((deltaTime) => {
     if (state !== 'PLAYING') return;
-    
+
     const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
 
     // Clear canvas
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    
+
     // Draw ground
     ctx.beginPath();
     ctx.moveTo(0, 350);
@@ -68,10 +68,15 @@ export const GameCanvas: React.FC = () => {
     // Update and draw game objects
     dino.update(deltaTime);
     obstacleManager.update(deltaTime);
-    
+
     dino.draw(ctx);
     obstacleManager.draw(ctx);
-    
+
+    // Check for passed obstacles and add points
+    if (obstacleManager.hasPassedObstacle(dino)) {
+      setScore(score + 5);
+    }
+
     // Check collisions
     if (obstacleManager.checkCollision(dino)) {
       setState('GAME_OVER');
@@ -80,9 +85,6 @@ export const GameCanvas: React.FC = () => {
       }
       return;
     }
-    
-    // Update score
-    setScore(score + Math.floor(deltaTime / 100));
   });
 
   return (
